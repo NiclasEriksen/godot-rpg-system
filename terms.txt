@@ -1,0 +1,24 @@
+sta		stamina
+str		strength
+agi		agility
+int		intelligence
+spi		spirit
+
+hp		hit points
+mp		mana points
+hpr		hit point regeneration
+mpr		mana point regeneration
+arm 	armor
+res		spell resistance
+block	block
+eva		evasion
+
+dmg		physical damage
+sdmg	spell damage
+crit	physical crit chance
+scrit	spell crit chance
+aspd	attack speed
+cspd	cast speed
+hit		hit rate
+apen	armor penetration
+spen	spell penetration
