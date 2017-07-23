@@ -1,6 +1,6 @@
 import random
 from math import log, exp
-from stat_objects import Stat, StatsOwner
+from stat_objects import Stat, StatsOwner, parse_rules
 from errors import StatNotFoundError
 
 MAX_LVL = 80
@@ -12,6 +12,11 @@ def main():
     p1 = [lvl_scale_exp(15, x, scale=1) for x in range(lvls)]
     p2 = [lvl_scale_flat(15, x, scale=1) for x in range(lvls)]
     p3 = [lvl_scale_exp(15, x, scale=1.15) for x in range(lvls)]
+    import configparser
+    rules = configparser.ConfigParser()
+    rules.read("rules.cfg")
+    s = rules["str"]
+    parse_rules(s)
     y = [y for y in range(lvls)]
     plt.plot(y, p1)
     plt.plot(y, p2)

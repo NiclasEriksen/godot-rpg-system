@@ -1,5 +1,45 @@
-from errors import OrphanStatError
+from errors import OrphanStatError, RuleError
 MAX_LVL = 80
+SCALES = ["exp", "log", "flat", "custom_dps"]
+
+
+def parse_rules(section):
+    parsed = dict()
+    for o in section:
+        value = section[o]
+
+        if o == "scale_stat":
+            value = value.split(",")
+
+        elif o == "scale_method":
+            if value not in SCALES:
+                raise RuleError("No such scale method: " + value)
+
+        elif o == "cap":
+            try:
+                value = int(value)
+            except ValueError:
+                raise RuleError("{0}/{1} not an integer.".format(o, v))
+
+        elif o == "scale_amount":
+            if "." in value:
+                try:
+                    value = float(value)
+                except ValueError:
+                    raise RuleError("{0}/{1} not a number.".format(o, v))
+            else:
+                try:
+                    value = int(value)
+                except ValueError:
+                    raise RuleError("{0}/{1} not a number.".format(o, v))
+
+        else:
+            print("'{0}' option not handled, passing as string.".format(o))
+
+        parsed[o] = value
+
+    return parsed
+    
 
 
 class StatsOwner:

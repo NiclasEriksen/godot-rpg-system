@@ -1,5 +1,5 @@
 import pytest
-from stat_objects import Stat, StatsOwner
+from stat_objects import Stat, StatsOwner, parse_rules
 from errors import OrphanStatError
 
 
@@ -112,3 +112,19 @@ def test_validate_rules():
     for section in rules.sections():
         for r in required:
             assert r in rules.options(section)
+
+
+def test_parse_rule_section():
+    import configparser
+    rules = configparser.ConfigParser()
+    rules.read("rules.cfg")
+    s = rules["str"]
+    s["cap"] = "10000"
+    s["scale_amount"] = "1.2"
+    s["scale_stat"] = "dmg,crit,aspd"
+    d = parse_rules(s)
+    assert (
+        d["cap"] == 10000 and
+        d["scale_stat"][2] == "aspd" and
+        d["scale_amount"] == 1.2
+    )

@@ -10,3 +10,8 @@ class StatNotFoundError(StatError):
 
 class OrphanStatError(StatError):
     pass
+
+
+class RuleError(Exception):
+    pass
+
