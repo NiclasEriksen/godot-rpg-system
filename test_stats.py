@@ -69,8 +69,8 @@ def test_stat_scale_flat():
     owner = StatsOwner()
     s = Stat("int")
     s.base_value = 10
-    s.lvl_scale = s.lvl_scale_flat
-    s.lvl_scale_amount = 1
+    s.scale_method = s.lvl_scale_flat
+    s.scale_amount = 1
     owner.claim(s)
     owner.set_lvl(1)
     s.update()
@@ -85,8 +85,8 @@ def test_stat_scale_exp():
     owner = StatsOwner()
     s = Stat("int")
     s.base_value = 10
-    s.lvl_scale = s.lvl_scale_exp
-    s.lvl_scale_amount = 1
+    s.scale_method = s.lvl_scale_exp
+    s.scale_amount = 1
     owner.claim(s)
     owner.set_lvl(1)
     s.update()
@@ -122,9 +122,22 @@ def test_parse_rule_section():
     s["cap"] = "10000"
     s["scale_amount"] = "1.2"
     s["scale_stat"] = "dmg,crit,aspd"
-    d = parse_rules(s)
+    d = parse_rules(rules)
     assert (
-        d["cap"] == 10000 and
-        d["scale_stat"][2] == "aspd" and
-        d["scale_amount"] == 1.2
+        d["str"]["cap"] == 10000 and
+        d["str"]["scale_stat"][2] == "aspd" and
+        d["str"]["scale_amount"] == 1.2
     )
+
+
+def test_build_stat():
+    import configparser
+    rules = configparser.ConfigParser()
+    rules.read("rules.cfg")
+    rules["str"]["scale_method"] = "flat"
+    d = parse_rules(rules)
+    so = StatsOwner()
+    so.load_rules(d)
+    s = Stat("str")
+    so.add(s)
+    assert so.stat_objects["str"].scale_method == so.stat_objects["str"].lvl_scale_flat
