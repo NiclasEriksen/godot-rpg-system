@@ -1,5 +1,5 @@
 import pytest
-from stat_objects import Stat, StatsOwner, parse_rules
+from stat_objects import Stat, StatsOwner, parse_rules, load_rules_from_file
 from errors import OrphanStatError
 
 
@@ -157,3 +157,12 @@ def test_build_stat():
     so.add(s)
     s = so.stat_objects["str"]
     assert s.scale_method == s.scale_flat
+
+
+def test_lvlup():
+    owner = StatsOwner()
+    owner.lvl = 1
+    owner.xp = 0
+    owner.load_rules(load_rules_from_file("rules.cfg"))
+    owner.award_xp(150)
+    assert owner.lvl > 1

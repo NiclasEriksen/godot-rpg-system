@@ -1,6 +1,13 @@
 from errors import OrphanStatError, RuleError, StatNotFoundError
+import configparser
 MAX_LVL = 80
 SCALES = ["exp", "log", "flat", "custom_dps"]
+
+
+def load_rules_from_file(file):
+    rules = configparser.ConfigParser()
+    rules.read(file)
+    return parse_rules(rules)
 
 
 def parse_rules(rules):
@@ -48,11 +55,14 @@ class StatsOwner:
     def __init__(self):
         self.stat_objects = dict()
         self.lvl = 1
+        self.xp = 0
+        self.xp_scale = 15
         self.rules = dict()
 
     def load_rules(self, rules):
         if isinstance(rules, dict):
             self.rules = rules
+            self.xp_scale = rules["lvl"]["scale_amount"]
         else:
             raise TypeError("Rules should be a dict.")
 
@@ -100,6 +110,22 @@ class StatsOwner:
     @property
     def stats(self):
         return [v for k, v in self.stat_objects.items()]
+
+    def get_next_lvl_target(self):
+        return int(
+            self.lvl * 100 * pow(
+                100 * self.xp_scale, self.lvl / MAX_LVL
+            )
+        )
+
+    def award_xp(self, amount):
+        self.xp += amount
+        if self.xp >= self.get_next_lvl_target():
+            self.lvl += 1
+
+    @property
+    def xp_to_next_lvl(self):
+        return self.get_next_lvl_target() - self.xp
 
     def set_lvl(self, lvl):
         if not isinstance(lvl, int):
