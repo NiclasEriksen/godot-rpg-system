@@ -166,3 +166,17 @@ def test_lvlup():
     owner.load_rules(load_rules_from_file("rules.cfg"))
     owner.award_xp(150)
     assert owner.lvl > 1
+
+
+def test_override_rules():
+    owner = StatsOwner()
+    rules = load_rules_from_file("rules.cfg")
+    rules["str"]["cap"] = 1
+    rules["str"]["scale_amount"] = 8
+    owner.load_rules(rules)
+    d = {"str": {"cap": 1337}}
+    owner.load_rules(d)
+    assert (
+        owner.rules["str"]["cap"] == 1337 and
+        owner.rules["str"]["scale_amount"] == 8
+    )

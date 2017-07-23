@@ -15,6 +15,7 @@ def parse_rules(rules):
     for section in rules:
         parsed[section] = dict()
         for o in rules[section]:
+            # print(section, o)
             value = rules[section][o]
 
             if o == "scale_stat":
@@ -61,8 +62,14 @@ class StatsOwner:
 
     def load_rules(self, rules):
         if isinstance(rules, dict):
-            self.rules = rules
-            self.xp_scale = rules["lvl"]["scale_amount"]
+            for stat, options in rules.items():
+                if stat in self.rules:
+                    self.rules[stat].update(options)
+                else:
+                    self.rules[stat] = options
+            if "lvl" in rules:
+                if "scale_amount" in rules["lvl"]:
+                    self.xp_scale = rules["lvl"]["scale_amount"]
         else:
             raise TypeError("Rules should be a dict.")
 
