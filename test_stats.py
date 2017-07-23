@@ -69,7 +69,8 @@ def test_stat_scale_flat():
     owner = StatsOwner()
     s = Stat("int")
     s.base_value = 10
-    s.scale_method = s.lvl_scale_flat
+    s.scale_method = s.scale_flat
+    s.scale_stat = "lvl"
     s.scale_amount = 1
     owner.claim(s)
     owner.set_lvl(1)
@@ -79,6 +80,20 @@ def test_stat_scale_flat():
     s.update()
     lvl10 = s.get_value()
     assert lvl1 == 10 and lvl10 == 19
+
+
+def test_stat_scale_stat():
+    owner = StatsOwner()
+    s1 = Stat("sta")
+    s2 = Stat("hp")
+    s1.value = 10
+    s2.base_value = 100
+    s2.scale_stat = "sta"
+    s2.scale_method = s2.scale_flat
+    s2.scale_amount = 10
+    owner.add([s1, s2])
+    owner.get("hp").update()
+    assert s2.get_value() == 200
 
 
 def test_stat_scale_exp():
@@ -140,4 +155,5 @@ def test_build_stat():
     so.load_rules(d)
     s = Stat("str")
     so.add(s)
-    assert so.stat_objects["str"].scale_method == so.stat_objects["str"].lvl_scale_flat
+    s = so.stat_objects["str"]
+    assert s.scale_method == s.scale_flat

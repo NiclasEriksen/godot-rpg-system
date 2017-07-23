@@ -1,4 +1,4 @@
-from errors import OrphanStatError, RuleError
+from errors import OrphanStatError, RuleError, StatNotFoundError
 MAX_LVL = 80
 SCALES = ["exp", "log", "flat", "custom_dps"]
 
@@ -59,6 +59,7 @@ class StatsOwner:
     def get(self, name):
         if name not in self.stat_objects:
             raise StatNotFoundError("No such stat: \"{}\"".format(name))
+        return self.stat_objects[name]
 
     def add(self, stat):
         if isinstance(stat, list):
@@ -135,7 +136,7 @@ class Stat:
         if r["scale_method"] == "exp":
             self.scale_method = self.lvl_scale_exp
         elif r["scale_method"] == "flat":
-            self.scale_method = self.lvl_scale_flat
+            self.scale_method = self.scale_flat
         else:
             print("Missing scaling method for '{}'".format(r["scale_method"]))
             self.scale_method = self.lvl_scale_exp
@@ -154,8 +155,21 @@ class Stat:
         )
         return v
 
-    def lvl_scale_flat(self):
-        return self.base_value + (self.owner.lvl - 1) * self.scale_amount
+    def stat_scale_exp(self):
+        stat = self.owner.get(self.scale_stat)
+        v = max(
+            self.base_value * pow(
+                10 * self.scale_amount, stat.get_value() / stat.cap
+            ), self.cap
+        )
+        return v
+
+    def scale_flat(self):
+        if self.scale_stat == "lvl":
+            scalar = self.owner.lvl - 1
+        else:
+            scalar = self.owner.get(self.scale_stat).get_value()
+        return self.base_value + scalar * self.scale_amount
 
     def update(self):
         if not self.owner:
